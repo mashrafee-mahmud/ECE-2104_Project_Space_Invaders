@@ -22,7 +22,12 @@ Rectangle Laser::getRect()
     rect.height = 15;
     return rect;
 }
-
+void Laser::Update() {
+    position.y += speed;
+    if(active) {
+        if(position.y > GetScreenHeight() - 100 || position.y < 25) {
+            active = false;
+        }
 
     }
 }
