@@ -1,5 +1,5 @@
 #include<raylib.h>
-#include"spaceship.hpp"
+#include"game.hpp"
 
 int main()
 {
@@ -9,12 +9,13 @@ int main()
 
     InitWindow(windowWidth, windowHeight, "Space Invaders"); // Initialize window and OpenGL context
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
-    Spaceship spaceship;
+    Game game;
 
     while(WindowShouldClose() == false){ // Check if application should close (KEY_ESCAPE pressed or windows close icon clicked)
+        game.HandleInput();
         BeginDrawing(); // Setup canvas (framebuffer) to start drawing
         ClearBackground(grey); // Clear the background with the specified color
-        spaceship.Draw(); // Draw the spaceship and its lasers
+        game.Draw();
         EndDrawing();
     }
 
