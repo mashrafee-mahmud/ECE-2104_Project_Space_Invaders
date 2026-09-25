@@ -8,7 +8,14 @@
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
-				"${file}",
+				"${workspaceFolder}\\src\\main.cpp",
+                "${workspaceFolder}\\src\\spaceship.cpp",
+				"${workspaceFolder}\\src\\laser.cpp",
+				"${workspaceFolder}\\src\\game.cpp",
+				"${workspaceFolder}\\src\\alien.cpp",
+				"${workspaceFolder}\\src\\block.cpp",
+				"${workspaceFolder}\\src\\mysteryship.cpp",
+				"${workspaceFolder}\\src\\obstacle.cpp",
 				"-o",
 				"${workspaceFolder}\\Space Invaders.exe",
 
@@ -18,7 +25,10 @@
                 "-lraylib",
                 "-lopengl32",
                 "-lgdi32",
-                "-lwinmm"
+                "-lwinmm",
+
+				"-static-libgcc",
+				"-static-libstdc++"
 			],
 			"options": {
 				"cwd": "${fileDirname}"

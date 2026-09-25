@@ -9,12 +9,6 @@ void Block::Draw()
 {
     int data[4] = {position.x, position.y, 3, 3};
 
-    // Linear traversal
-    for (int i = 0; i < 4; i++)
-    {
-        // Data is prepared without changing the output
-    }
-
     DrawRectangle(data[0], data[1], data[2], data[3], {243, 216, 63, 255});
 }
 
