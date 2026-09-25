@@ -2,53 +2,75 @@
 
 Texture2D Alien::alienImages[3] = {};
 
+// Alien types stored in an array
+int alienTypes[3] = {1, 2, 3};
+
+const char* alienPaths[3] = {
+    "Graphics/alien_1.png",
+    "Graphics/alien_2.png",
+    "Graphics/alien_3.png"
+};
+
+// Linear Search Algorithm
+int findAlienIndex(int type)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (alienTypes[i] == type)
+            return i;
+    }
+
+    return 0;
+}
+
 Alien::Alien(int type, Vector2 position)
 {
-    this -> type = type;
-    this -> position = position;
+    this->type = type;
+    this->position = position;
 
-    if(alienImages[type -1].id == 0){
+    // Find the corresponding alien using Linear Search
+    int index = findAlienIndex(type);
 
-    switch (type) {
-        case 1:
-            alienImages[0] = LoadTexture("Graphics/alien_1.png");
-            break;
-        case 2:
-            alienImages[1] = LoadTexture("Graphics/alien_2.png");
-            break;
-        case 3: 
-            alienImages[2] = LoadTexture("Graphics/alien_3.png");
-            break;
-        default:
-            alienImages[0] = LoadTexture("Graphics/alien_1.png");
-            break;
+    if (alienImages[index].id == 0)
+    {
+        alienImages[index] = LoadTexture(alienPaths[index]);
     }
 }
+
+void Alien::Draw()
+{
+    int index = findAlienIndex(type);
+
+    DrawTextureV(alienImages[index], position, WHITE);
 }
 
-void Alien::Draw() {
-    DrawTextureV(alienImages[type - 1], position, WHITE);
-}
-
-int Alien::GetType() {
+int Alien::GetType()
+{
     return type;
 }
 
 void Alien::UnloadImages()
 {
-    for(int i = 0; i < 4; i++) {
+    // Linear traversal
+    for (int i = 0; i < 3; i++)
+    {
         UnloadTexture(alienImages[i]);
     }
 }
 
 Rectangle Alien::getRect()
 {
-    return {position.x, position.y,
-    float(alienImages[type - 1].width),
-    float(alienImages[type - 1].height)
+    int index = findAlienIndex(type);
+
+    return {
+        position.x,
+        position.y,
+        float(alienImages[index].width),
+        float(alienImages[index].height)
     };
 }
 
-void Alien::Update(int direction) {
+void Alien::Update(int direction)
+{
     position.x += direction;
 }
