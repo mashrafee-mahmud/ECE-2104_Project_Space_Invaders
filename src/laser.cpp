@@ -5,9 +5,6 @@ Laser::Laser(Vector2 position, int speed)
     this->position = position;
     this->speed = speed;
     active = true;
-
-    // Initially no next node
-    next = nullptr;
 }
 
 void Laser::Draw()
@@ -21,12 +18,6 @@ void Laser::Draw()
             15,
             {243, 216, 63, 255}
         );
-    }
-
-    // Traverse linked list
-    if (next != nullptr)
-    {
-        next->Draw();
     }
 }
 
@@ -53,12 +44,6 @@ void Laser::Update()
         {
             active = false;
         }
-    }
-
-    // Traverse linked list
-    if (next != nullptr)
-    {
-        next->Update();
     }
 }
 

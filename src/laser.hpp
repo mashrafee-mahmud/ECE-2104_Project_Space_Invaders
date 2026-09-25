@@ -17,7 +17,4 @@ private:
     Vector2 position;
     int speed;
     bool active;
-
-    // Linked List
-    Laser* next;
 };

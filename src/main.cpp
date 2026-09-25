@@ -13,6 +13,7 @@ int main()
 
     while(WindowShouldClose() == false){ // Check if application should close (KEY_ESCAPE pressed or windows close icon clicked)
         game.HandleInput();
+        game.Update();
         BeginDrawing(); // Setup canvas (framebuffer) to start drawing
         ClearBackground(grey); // Clear the background with the specified color
         game.Draw();
