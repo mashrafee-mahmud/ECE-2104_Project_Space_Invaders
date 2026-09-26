@@ -44,10 +44,7 @@ void HighScoreBST::Insert(int score)
 }
 
 
-void HighScoreBST::getTopScores(
-    Node* node,
-    std::vector<int>& scores,
-    int limit)
+void HighScoreBST::getTopScores(Node* node, std::vector<int>& scores, int limit)
 {
     if(node == nullptr || scores.size() >= limit)
     {
