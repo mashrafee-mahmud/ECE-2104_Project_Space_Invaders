@@ -12,9 +12,9 @@ public:
 
     Rectangle getRect();
     bool isActive();
+    bool active;
 
 private:
     Vector2 position;
     int speed;
-    bool active;
 };
