@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include "game.hpp"
 #include <string>
+#include <vector>
 
 std::string FormatWithLeadingZeros(int number, int width) {
     std::string numberText = std::to_string(number);
@@ -30,14 +31,111 @@ int main()
         UpdateMusicStream(game.music);
         game.HandleInput();
         game.Update();
+
         BeginDrawing();
         ClearBackground(grey);
+
         DrawRectangleRoundedLinesEx({10, 10, 780, 780}, 0.18f, 20, 2, yellow);
         DrawLineEx({25, 730}, {775, 730}, 3, yellow);
 
+
+        game.Draw();
         if(!game.run){
-            DrawTextEx(font, "GAME OVER", {570, 740}, 34, 2, yellow);
+
+            DrawRectangle(
+                100,
+                100,
+                600,
+                580,
+                grey
+            );
+
+            DrawRectangleLinesEx(
+                {100, 100, 600, 580},
+                3,
+                yellow
+            );
+
+
+            DrawTextEx(
+                font,
+                "GAME OVER",
+                {270, 130},
+                45,
+                2,
+                yellow
+            );
+
+
+            std::string finalScore =
+                "SCORE: " +
+                FormatWithLeadingZeros(game.score, 5);
+
+            DrawTextEx(
+                font,
+                finalScore.c_str(),
+                {280, 200},
+                30,
+                2,
+                yellow
+            );
+
+
+            DrawTextEx(
+                font,
+                "   TOP 5 HIGH SCORES",
+                {190, 270},
+                32,
+                2,
+                yellow
+            );
+
+
+            // Get top 5 scores from BST
+            std::vector<int> topScores =
+                game.highScoreTree.GetTopScores(5);
+
+
+            for(int i = 0; i < topScores.size(); i++)
+            {
+                std::string rank =
+                    std::to_string(i + 1) + ".";
+
+                std::string scoreText =
+                    FormatWithLeadingZeros(topScores[i], 5);
+
+
+                DrawTextEx(
+                    font,
+                    rank.c_str(),
+                    {250.0f, 325.0f + static_cast<float>(i) * 45.0f},
+                    28,
+                    2,
+                    yellow
+                );
+
+
+                DrawTextEx(
+                    font,
+                    scoreText.c_str(),
+                    {450.0f, 325.0f + static_cast<float>(i) * 45.0f},
+                    28,
+                    2,
+                    yellow
+                );
+            }
+
+
+            DrawTextEx(
+                font,
+                "  PRESS ENTER TO PLAY AGAIN",
+                {190, 590},
+                25,
+                2,
+                yellow
+            );
         }
+
 
         float x = 50.0;
         for(int i = 0; i < game.lives; i ++) {
@@ -53,7 +151,7 @@ int main()
         std::string highscoreText = FormatWithLeadingZeros(game.highscore, 5);
         DrawTextEx(font, highscoreText.c_str(), {655, 40}, 34, 2, yellow);
 
-        game.Draw();
+
         EndDrawing();
     }
 

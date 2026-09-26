@@ -4,6 +4,47 @@
 #include "alien.hpp"
 #include "mysteryship.hpp"
 
+#include <vector>
+#include <string>
+
+
+// =========================
+// Binary Search Tree
+// =========================
+
+class HighScoreBST {
+private:
+    struct Node {
+        int score;
+        Node* left;
+        Node* right;
+
+        Node(int value) {
+            score = value;
+            left = nullptr;
+            right = nullptr;
+        }
+    };
+
+    Node* root;
+
+    void insert(Node*& node, int score);
+    void getTopScores(Node* node, std::vector<int>& scores, int limit);
+    void deleteTree(Node* node);
+
+public:
+    HighScoreBST();
+    ~HighScoreBST();
+
+    void Insert(int score);
+    std::vector<int> GetTopScores(int limit);
+    int GetHighestScore();
+
+    void SaveToFile(const std::string& filename);
+    void LoadFromFile(const std::string& filename);
+};
+
+
 class Game {
     public:
         Game();
@@ -16,6 +57,10 @@ class Game {
         int score;
         int highscore;
         Music music;
+
+        // High score BST
+        HighScoreBST highScoreTree;
+
     private:
         void DeleteInactiveLasers();
         std::vector<Obstacle> CreateObstacles();
@@ -28,8 +73,6 @@ class Game {
         void Reset();
         void InitGame();
         void checkForHighscore();
-        void saveHighscoreToFile(int highscore);
-        int loadHighscoreFromFile();
         Spaceship spaceship;
         std::vector<Obstacle> obstacles;
         std::vector<Alien> aliens;

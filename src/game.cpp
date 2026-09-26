@@ -2,11 +2,168 @@
 #include <iostream>
 #include <fstream>
 
+
+// ============================================================
+// High Score BST
+// ============================================================
+
+HighScoreBST::HighScoreBST()
+{
+    root = nullptr;
+}
+
+
+HighScoreBST::~HighScoreBST()
+{
+    deleteTree(root);
+}
+
+
+void HighScoreBST::insert(Node*& node, int score)
+{
+    if(node == nullptr)
+    {
+        node = new Node(score);
+        return;
+    }
+
+    if(score < node->score)
+    {
+        insert(node->left, score);
+    }
+    else
+    {
+        insert(node->right, score);
+    }
+}
+
+
+void HighScoreBST::Insert(int score)
+{
+    insert(root, score);
+}
+
+
+void HighScoreBST::getTopScores(
+    Node* node,
+    std::vector<int>& scores,
+    int limit)
+{
+    if(node == nullptr || scores.size() >= limit)
+    {
+        return;
+    }
+
+    // Right -> Root -> Left
+    // gives highest scores first
+
+    getTopScores(node->right, scores, limit);
+
+    if(scores.size() < limit)
+    {
+        scores.push_back(node->score);
+    }
+
+    getTopScores(node->left, scores, limit);
+}
+
+
+std::vector<int> HighScoreBST::GetTopScores(int limit)
+{
+    std::vector<int> scores;
+
+    getTopScores(root, scores, limit);
+
+    return scores;
+}
+
+
+int HighScoreBST::GetHighestScore()
+{
+    if(root == nullptr)
+    {
+        return 0;
+    }
+
+    Node* current = root;
+
+    while(current->right != nullptr)
+    {
+        current = current->right;
+    }
+
+    return current->score;
+}
+
+
+void HighScoreBST::deleteTree(Node* node)
+{
+    if(node == nullptr)
+    {
+        return;
+    }
+
+    deleteTree(node->left);
+    deleteTree(node->right);
+
+    delete node;
+}
+
+
+void HighScoreBST::SaveToFile(const std::string& filename)
+{
+    std::ofstream file(filename);
+
+    if(!file.is_open())
+    {
+        std::cerr << "Failed to save high scores to file." << std::endl;
+        return;
+    }
+
+    std::vector<int> scores = GetTopScores(1000000);
+
+    for(int score : scores)
+    {
+        file << score << std::endl;
+    }
+
+    file.close();
+}
+
+
+void HighScoreBST::LoadFromFile(const std::string& filename)
+{
+    std::ifstream file(filename);
+
+    if(!file.is_open())
+    {
+        return;
+    }
+
+    int score;
+
+    while(file >> score)
+    {
+        Insert(score);
+    }
+
+    file.close();
+}
+
+
+// ============================================================
+// Game
+// ============================================================
+
 Game::Game()
 {
     music = LoadMusicStream("Sounds/music.ogg");
     explosionSound = LoadSound("Sounds/explosion.ogg");
     PlayMusicStream(music);
+
+    // Load previous high scores
+    highScoreTree.LoadFromFile("highscore.txt");
+
     InitGame();
 }
 
@@ -119,10 +276,12 @@ std::vector<Obstacle> Game::CreateObstacles()
 std::vector<Alien> Game::CreateAliens()
 {
     std::vector<Alien> aliens;
+
     for(int row = 0; row < 5; row++) {
         for(int column = 0; column < 11; column++) {
 
             int alienType;
+
             if(row == 0) {
                 alienType = 3;
             } else if (row == 1 || row == 2) {
@@ -133,9 +292,11 @@ std::vector<Alien> Game::CreateAliens()
 
             float x = 75 + column * 55;
             float y = 110 + row * 55;
+
             aliens.push_back(Alien(alienType, {x, y}));
         }
     }
+
     return aliens;
 }
 
@@ -145,6 +306,7 @@ void Game::MoveAliens() {
             aliensDirection = -1;
             MoveDownAliens(4);
         }
+
         if(alien.position.x < 25) {
             aliensDirection = 1;
             MoveDownAliens(4);
@@ -164,11 +326,21 @@ void Game::MoveDownAliens(int distance)
 void Game::AlienShootLaser()
 {
     double currentTime = GetTime();
+
     if(currentTime - timeLastAlienFired >= alienLaserShootInterval && !aliens.empty()) {
         int randomIndex = GetRandomValue(0, aliens.size() - 1);
         Alien& alien = aliens[randomIndex];
-        alienLasers.push_back(Laser({alien.position.x + alien.alienImages[alien.type -1].width/2, 
-                                    alien.position.y + alien.alienImages[alien.type - 1].height}, 6));
+
+        alienLasers.push_back(
+            Laser(
+                {
+                    alien.position.x + alien.alienImages[alien.type -1].width/2,
+                    alien.position.y + alien.alienImages[alien.type - 1].height
+                },
+                6
+            )
+        );
+
         timeLastAlienFired = GetTime();
     }
 }
@@ -179,10 +351,12 @@ void Game::CheckForCollisions()
 
     for(auto& laser: spaceship.lasers) {
         auto it = aliens.begin();
+
         while(it != aliens.end()){
             if(CheckCollisionRecs(it -> getRect(), laser.getRect()))
             {
                 PlaySound(explosionSound);
+
                 if(it -> type == 1) {
                     score += 100;
                 } else if (it -> type == 2) {
@@ -190,6 +364,7 @@ void Game::CheckForCollisions()
                 } else if(it -> type == 3) {
                     score += 300;
                 }
+
                 checkForHighscore();
 
                 it = aliens.erase(it);
@@ -201,6 +376,7 @@ void Game::CheckForCollisions()
 
         for(auto& obstacle: obstacles){
             auto it = obstacle.blocks.begin();
+
             while(it != obstacle.blocks.end()){
                 if(CheckCollisionRecs(it -> getRect(), laser.getRect())){
                     it = obstacle.blocks.erase(it);
@@ -215,7 +391,9 @@ void Game::CheckForCollisions()
             mysteryship.alive = false;
             laser.active = false;
             score += 500;
+
             checkForHighscore();
+
             PlaySound(explosionSound);
         }
     }
@@ -226,13 +404,15 @@ void Game::CheckForCollisions()
         if(CheckCollisionRecs(laser.getRect(), spaceship.getRect())){
             laser.active = false;
             lives --;
+
             if(lives == 0) {
                 GameOver();
             }
         }
 
-          for(auto& obstacle: obstacles){
+        for(auto& obstacle: obstacles){
             auto it = obstacle.blocks.begin();
+
             while(it != obstacle.blocks.end()){
                 if(CheckCollisionRecs(it -> getRect(), laser.getRect())){
                     it = obstacle.blocks.erase(it);
@@ -244,11 +424,12 @@ void Game::CheckForCollisions()
         }
     }
 
-    //Alien Collision with Obstacle
+    // Alien Collision with Obstacle
     
     for(auto& alien: aliens) {
         for(auto& obstacle: obstacles) {
             auto it = obstacle.blocks.begin();
+
             while(it != obstacle.blocks.end()) {
                 if(CheckCollisionRecs(it -> getRect(), alien.getRect())) {
                     it = obstacle.blocks.erase(it);
@@ -264,10 +445,23 @@ void Game::CheckForCollisions()
     }
 }
 
+
 void Game::GameOver()
 {
+    if(!run)
+    {
+        return;
+    }
+
     run = false;
+
+    highScoreTree.Insert(score);
+
+    highscore = highScoreTree.GetHighestScore();
+
+    highScoreTree.SaveToFile("highscore.txt");
 }
+
 
 void Game::InitGame()
 {
@@ -278,41 +472,21 @@ void Game::InitGame()
     timeLastSpawn = 0.0;
     lives = 3;
     score = 0;
-    highscore = loadHighscoreFromFile();
+
+    highscore = highScoreTree.GetHighestScore();
+
     run = true;
     mysteryShipSpawnInterval = GetRandomValue(10, 20);
 }
+
 
 void Game::checkForHighscore()
 {
     if(score > highscore) {
         highscore = score;
-        saveHighscoreToFile(highscore);
     }
 }
 
-void Game::saveHighscoreToFile(int highscore)
-{
-    std::ofstream highscoreFile("highscore.txt");
-    if(highscoreFile.is_open()) {
-        highscoreFile << highscore;
-        highscoreFile.close();
-    } else {
-        std::cerr << "Failed to save highscore to file" << std::endl;
-    }
-}
-
-int Game::loadHighscoreFromFile() {
-    int loadedHighscore = 0;
-    std::ifstream highscoreFile("highscore.txt");
-    if(highscoreFile.is_open()) {
-        highscoreFile >> loadedHighscore;
-        highscoreFile.close();
-    } else {
-        std::cerr << "Failed to load highscore from file." << std::endl;
-    }
-    return loadedHighscore;
-}
 
 void Game::Reset() {
     spaceship.Reset();
